@@ -8,6 +8,43 @@
 #include <limits.h>
 #include <assert.h>
 
+
+// start() is used as a return to the starting point throughout the program
+void start();
+
+// Check if string only contains digits
+bool digitString(const char str[]){
+    for (long i = 0; str[i] != '\0'; i++)
+        if (str[i] < '0' || str[i] > '9')
+            return 0;
+    return 1;
+}
+
+// Convert a string into an integer.  Return -1 if it is not valid.
+long convert(const char length[]) {
+    if (length[0] != '0' || strlen(length) == 1)
+        if (digitString(length)){
+            long l = atoi(length);
+            if (l > 0)
+                return l;
+        }
+    return -1;
+}
+
+void namePolygon(int sides){
+	if (sides == -1){
+		printf("Please enter an integer.\n");
+		start();
+	}
+	if (sides < 3){
+		printf("You can't have a polygon with fewer than 3 sides. Try again!\n");
+		start();
+	}
+	if (sides > 999){
+
+	}
+}
+
 // Check if all sides are equal
 bool equalSides(int number_sides, long *sides_length){
 	long expected_length = sides_length[0];
@@ -66,32 +103,38 @@ long triangle(long a, long b, long c) {
 }
 */
 
-// Check if string only contains digits
-bool digitString(const char str[]){
-    for (long i = 0; str[i] != '\0'; i++)
-        if (str[i] < '0' || str[i] > '9')
-            return 0;
-    return 1;
-}
-
-// Convert a string into an integer.  Return -1 if it is not valid.
-long convert(const char length[]) {
-    if (length[0] != '0' || strlen(length) == 1)
-        if (digitString(length)){
-            long l = atoi(length);
-            if (l > 0)
-                return l;
-        }
-    return -1;
-}
-
 // User interface ---------------------------------------------------
 
+// That's not a polygon! It's a circle!
+void easter(){
+	printf("You might be looking at a circle (or another round object! ");
+	printf("Stop it, they're not polygons! ");
+	printf("Let's try again.\n");
+	start();
+	return;
+}
+
 // Get number of sides
-void star(){
-	printf("Look around yourself! The world is full of polygons. Look at one and count its sides: ");
-	int sides;
-	scanf("%d", &sides);
+void start(){
+	printf("Look around yourself! The world is full of polygons. "); 
+	printf("Look at one and count its sides: ");
+
+	char input[100];
+	scanf("%s", input);
+
+	if(!strcmp(input, "infinite")){
+		easter();
+		return;
+	}
+
+	int sides = convert(input);
+	namePolygon(sides);
+	return;
+}
+
+// Print function for name
+void printName(){
+
 }
 
 
@@ -101,7 +144,7 @@ int main(int n, char *args[n]){
         //test();
     }
     else if (n == 2 && !strcmp(args[1], "start")) {
-        star();
+        start();
     }
     else {
         fprintf(stderr, "Use e.g.: ./polygons start\n");
