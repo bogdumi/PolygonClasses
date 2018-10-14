@@ -30,8 +30,8 @@ char *getsName(int sides);
 void inputSides(int sides);
 // Classify a triangle
 void triangle(long a, long b, long c);
-// Classify a quadri
-void quadri(long *sides_length);
+// Classify a quadrilateral
+void quadri(long a, long b, long c, long d);
 
 
 // Functions used to convert a string into an integer ---------------
@@ -122,7 +122,7 @@ void polygonOp(int sides, long *sides_length){
 		return;
 	}
 	if(sides == 4){
-		quadri(sides_length);
+		quadri(sides_length[0], sides_length[1], sides_length[2], sides_length[3]);
 		return;
 	}
 
@@ -162,7 +162,7 @@ bool addUp(long a, long b, long c){
 }
 
 // Check if the squares of numbers add up
-bool rightAngle(long a, long b, long c){
+bool rightAngleTri(long a, long b, long c){
     a *= a;
     b *= b;
     c *= c;
@@ -195,9 +195,9 @@ void triangle(long a, long b, long c) {
 
     if (a == b && b == c)
         strcat(triangleType, "equilateral");
-    if (isosceles(a,b,c))
+    else if (isosceles(a,b,c))
         strcat(triangleType, "isosceles");
-    if (rightAngle(a,b,c))
+    if (rightAngleTri(a,b,c))
         strcat(triangleType, "right");
     if (addUp(a,b,c))
         strcat(triangleType, "flat");
@@ -225,8 +225,80 @@ void triangle(long a, long b, long c) {
 // Quadrilateral classify functions ----------------------------------------
 
 
+// Check if quadri is a rhombus
+bool rhombus(long a, long b, long c, long d){
+	if (a == b && b == c && c == d)
+		return 1;
+	return 0;
+}
+
+// Check if quadri is kite
+bool kite(long a, long b, long c, long d){
+	if (a == b && c ==d)
+		return 1;
+	if (b == c && a == d)
+		return 1;
+	return 0;
+}
+
+// Check if quadri is parallelogram
+bool parallelogram(long a, long b, long c, long d){
+	if (a == c && b == d)
+		return 1;
+	return 0;
+}
+
+// Turn rhombus/parallelogram into square/rectangle if right angle
+void rightAngleQuadri(char *quadriType){
+	bool right_angle = 0;
+
+	printf("Does this polygon have a right angle? (yes/no)\n");
+	char answer[100];
+	scanf("%s", answer);
+	if (!strcmp(answer, "yes") || !strcmp(answer, "y"))
+		right_angle = 1;
+
+	if(right_angle){
+		if(!strcmp(quadriType, "rhombus"))
+			strcpy(quadriType, "square");
+		if(!strcmp(quadriType, "parallelogram"))
+			strcpy(quadriType, "rectangle");
+	}
+	return;
+}
+
+// Calculate area of quadri
+double quadriArea(long a, long b, long c, long d){
+	int p = (a + b + c + d) / 2;
+	int multi = (p - a) * (p - b) * (p - c) * (p - d);
+	double area = sqrt(multi);
+	return area;
+}
+
 // Classify a quadri
-void quadri(long *sides_length){
+void quadri(long a, long b, long c, long d){
+	char quadriType[50] = "";
+	double ar = -1;
+	if (rhombus(a,b,c,d))
+		strcat(quadriType, "rhombus");
+	else if (kite(a,b,c,d))
+		strcat(quadriType, "kite");
+	else if (parallelogram(a,b,c,d))
+		strcat(quadriType, "parallelogram");
+	
+	if(!strcmp(quadriType, "rhombus") || !strcmp(quadriType, "parallelogram"))
+		rightAngleQuadri(quadriType);
+
+	if(!strcmp(quadriType, ""))
+		strcat(quadriType, "random quadrilateral");
+	ar = quadriArea(a,b,c,d);
+
+	printf("You're looking at a %s!\n", quadriType);
+
+	printf("Its perimeter is %ld,\n", a + b + c + d);
+    printf("Its area is about %0.2lf.\n", ar);
+    start();
+    return;
 
 }
 
@@ -237,8 +309,8 @@ void quadri(long *sides_length){
 // These polygons have individual names each
 void nameSmallPolygon(int sides, char *prefix){
 	switch (sides){
-		case 3: strcat(prefix, "tri"); break;
-		case 4: strcat(prefix, "tetra"); break;
+		case 3: strcpy(prefix, "tri"); break;
+		case 4: strcpy(prefix, "tetra"); break;
 		case 5: strcpy(prefix, "penta"); break;
 		case 6: strcpy(prefix, "hexa"); break;
 		case 7: strcpy(prefix, "hepta"); break;
@@ -318,7 +390,7 @@ void easter(){
 	return;
 }
 
-// Get number of sides
+// Ask for number of sides
 void start(){
 	printf("Look around! The world is full of polygons. "); 
 	printf("Look at one and count its sides: ");
@@ -343,22 +415,22 @@ void start(){
 // Ask for sides' lengths
 void inputSides(int sides){
 	printf("Would you also like to input the sides' lengths? (yes/no)\n");
-	char answer[10];
+	char answer[100];
 	scanf("%s", answer);
 	long sides_length[1000];
 	if (!strcmp(answer, "yes") || !strcmp(answer, "y")){
 		printf("Please input the sides' lengths: \n");
 		for (int i = 0; i < sides; i++){
-			scanf("%ld", &sides_length[i]);
+			scanf("%s", answer);
+			sides_length[i] = convert(answer);
 			if(sides_length[i] <= 0){
-				printf("That length can't exist! Let's start over.\n");
+				printf("Please input a valid number for the polygon's length. Let's start over.\n");
 				start();
 			}
 		}
 		polygonOp(sides, sides_length);
 	}
-	else
-		start();
+	return;
 }
 
 // Main function ----------------------------------------------------
